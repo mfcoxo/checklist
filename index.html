@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Delivery Checklist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #f5f5f5;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding-top: 140px; /* Space for fixed header */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Fixed Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #dc2626;
+            z-index: 1000;
+            padding: 20px 0;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .logo {
+            color: #dc2626;
+            font-weight: 800;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #dc2626, #ff4444);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+
+        /* Model Selection */
+        .model-selection {
+            margin-bottom: 30px;
+        }
+
+        .model-selection label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .model-selection select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background-color: #222;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .model-selection select:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h2 {
+            color: #dc2626;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+            color: #cccccc;
+        }
+
+        /* Checklist Sections */
+        .checklist-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-section:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.2);
+        }
+
+        .section-header {
+            background: linear-gradient(90deg, #dc2626, #aa1a1a);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .section-header:hover {
+            background: linear-gradient(90deg, #ff4444, #dc2626);
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .section-content.hidden {
+            display: none;
+        }
+
+        /* Checklist Items */
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #dc2626;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            font-weight: 500;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            color: #888;
+            text-decoration: line-through;
+        }
+
+        /* Info Icon */
+        .info-icon {
+            margin-left: 8px;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            position: relative;
+            user-select: none;
+        }
+
+        .info-icon:hover {
+            color: #ff4444;
+        }
+
+        /* Tooltip - Fixed positioning */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            max-width: 280px;
+            width: max-content;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid #dc2626;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 20px;
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .info-icon:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Responsive tooltip positioning */
+        @media (max-width: 600px) {
+            .tooltip {
+                right: -80px;
+                left: auto;
+                max-width: 250px;
+            }
+            
+            .tooltip::after {
+                right: 100px;
+            }
+        }
+
+        /* Toggle Arrow */
+        .toggle-arrow {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .toggle-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Products Section */
+        .products-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .products-section h2 {
+            color: #dc2626;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-item:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .product-item h3 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .product-item p {
+            color: #cccccc;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .product-button {
+            background: linear-gradient(90deg, #dc2626, #aa1a1a);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .product-button:hover {
+            background: linear-gradient(90deg, #ff4444, #dc2626);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        .product-button:active {
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #444;
+            margin-top: 40px;
+        }
+
+        /* Reset Button */
+        .reset-button {
+            background: linear-gradient(90deg, #dc2626, #aa1a1a);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .reset-button:hover {
+            background: linear-gradient(90deg, #ff4444, #dc2626);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            body {
+                padding-top: 160px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .section-header {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+            
+            .checklist-item {
+                padding: 8px;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><span class="logo">TESLA</span> Delivery Checklist</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Completo</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="model-selection">
+            <label for="modelSelect">Selecione o modelo do seu Tesla:</label>
+            <select id="modelSelect">
+                <option value="">Selecione um modelo</option>
+                <option value="model3">Model 3</option>
+                <option value="modely">Model Y</option>
+                <option value="models">Model S</option>
+                <option value="modelx">Model X</option>
+            </select>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 Instruções</h2>
+            <p>• Use este checklist durante a entrega do seu Tesla</p>
+            <p>• Marque cada item após verificar</p>
+            <p>• Clique no ícone ℹ️ para ver dicas de verificação</p>
+            <p>• Não aceite a entrega se algum item crítico estiver em falta</p>
+            <p>• Seu progresso é salvo automaticamente</p>
+        </div>
+
+        <div class="checklist-section">
+            <div class="section-header" onclick="toggleSection('documentation')">
+                <span>📄 Documentação (Com Antecedência)</span>
+                <span class="toggle-arrow" id="arrow-documentation">▼</span>
+            </div>
+            <div class="section-content" id="documentation">
+                <div class="checklist-item">
+                    <input type="checkbox" id="registration" onchange="updateProgress()">
+                    <label for="registration">Documentos de registo</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se todos os documentos de registo estão corretos e completos, incluindo certificado de matrícula e seguro.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="insurance" onchange="updateProgress()">
+                    <label for="insurance">Seguro ativo</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Confirme que o seguro está ativo e cobrindo o veículo desde o momento da entrega.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="keys" onchange="updateProgress()">
+                    <label for="keys">Chaves e cartões</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se recebeu todas as chaves e cartões Tesla. Teste se funcionam corretamente.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="manual" onchange="updateProgress()">
+                    <label for="manual">Manual do proprietário</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Confirme que recebeu o manual do proprietário (pode ser digital) e acesso à app Tesla.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="checklist-section">
+            <div class="section-header" onclick="toggleSection('exterior')">
+                <span>🚗 Inspeção Exterior</span>
+                <span class="toggle-arrow" id="arrow-exterior">▼</span>
+            </div>
+            <div class="section-content" id="exterior">
+                <div class="checklist-item">
+                    <input type="checkbox" id="paint" onchange="updateProgress()">
+                    <label for="paint">Pintura sem defeitos</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Inspecione toda a pintura em boa iluminação, procurando por riscos, chips ou imperfeições.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="panels" onchange="updateProgress()">
+                    <label for="panels">Painéis alinhados e Vidros (inclusive os panorâmicos)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se todos os painéis estão alinhados corretamente, sem gaps desiguais. Inspecione todos os vidros, incluindo panorâmicos, procurando por danos ou bolhas.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="lights" onchange="updateProgress()">
+                    <label for="lights">Luzes funcionais</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste todas as luzes: faróis, piscas, luzes de travão, luzes de nevoeiro.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="tires" onchange="updateProgress()">
+                    <label for="tires">Pneus em bom estado</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se todos os pneus estão em bom estado, sem danos visíveis e com pressão adequada.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="trunk" onchange="updateProgress()">
+                    <label for="trunk">Bagageira - Abertura (Frontal e traseira)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste a abertura e fecho das bagageiras frontal e traseira, verificando se funcionam suavemente.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="checklist-section">
+            <div class="section-header" onclick="toggleSection('interior')">
+                <span>🏠 Inspeção Interior</span>
+                <span class="toggle-arrow" id="arrow-interior">▼</span>
+            </div>
+            <div class="section-content" id="interior">
+                <div class="checklist-item">
+                    <input type="checkbox" id="seats" onchange="updateProgress()">
+                    <label for="seats">Bancos ajustáveis (Frente e traseiro)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste todos os ajustes dos bancos dianteiros e traseiros, incluindo reclinação e altura.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="seatbelts" onchange="updateProgress()">
+                    <label for="seatbelts">Cintos de segurança</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se todos os cintos de segurança funcionam corretamente e não estão danificados.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="mirrors" onchange="updateProgress()">
+                    <label for="mirrors">Espelhos funcionais (Interno e externos)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste os ajustes dos espelhos retrovisores internos e externos, incluindo rebatimento elétrico.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="ac" onchange="updateProgress()">
+                    <label for="ac">Ar condicionado (Frente e traseiro)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste o ar condicionado/aquecimento em todas as zonas, verificando se arrefece e aquece adequadamente.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="touchscreen" onchange="updateProgress()">
+                    <label for="touchscreen">Ecrã táctil (Frente e traseiro)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste a responsividade do ecrã táctil principal e, se aplicável, do ecrã traseiro.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audio" onchange="updateProgress()">
+                    <label for="audio">Sistema de áudio</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste o sistema de áudio, incluindo volume, qualidade do som e conectividade Bluetooth.</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="usb" onchange="updateProgress()">
+                    <label for="usb">Portas USB (Frente e traseiro)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste todas as portas USB, verificando se carregam dispositivos e transferem dados.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="checklist-section">
+            <div class="section-header" onclick="toggleSection('charging')">
+                <span>⚡ Carregamento</span>
+                <span class="toggle-arrow" id="arrow-charging">▼</span>
+            </div>
+            <div class="section-content" id="charging">
+                <div class="checklist-item">
+                    <input type="checkbox" id="charging-cable" onchange="updateProgress()">
+                    <label for="charging-cable">Cabo de carregamento (Se aplicável)</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Verifique se o cabo de carregamento está incluído (dependendo da região e modelo).</div>
+                    </span>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="charging-port" onchange="updateProgress()">
+                    <label for="charging-port">Porto de carregamento funcional</label>
+                    <span class="info-icon">ℹ️
+                        <div class="tooltip">Teste a abertura do porto de carregamento e verifique se não há danos visíveis.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="products-section">
+            <h2>🛡️ Produtos Recomendados para a Segurança do seu Tesla</h2>
+            <div class="products-grid" id="productsGrid">
+                <div class="product-item">
+                    <h3>Protetor de lama</h3>
+                    <p>Protege a carroceria contra salpicos e detritos da estrada</p>
+                    <a href="#" class="product-button" id="mud-flaps-link" target="_blank">Ver Produto</a>
+                </div>
+                <div class="product-item">
+                    <h3>Protetor de ecrã frontal</h3>
+                    <p>Protege o ecrã táctil contra riscos e impressões digitais</p>
+                    <a href="#" class="product-button" id="screen-protector-front-link" target="_blank">Ver Produto</a>
+                </div>
+                <div class="product-item">
+                    <h3>Protetor de ecrã traseiro</h3>
+                    <p>Protege o ecrã traseiro contra riscos e impressões digitais</p>
+                    <a href="#" class="product-button" id="screen-protector-rear-link" target="_blank">Ver Produto</a>
+                </div>
+                <div class="product-item">
+                    <h3>Tapetes de borracha (all-weather)</h3>
+                    <p>Tapetes resistentes e laváveis para todas as condições climatéricas</p>
+                    <a href="#" class="product-button" id="floor-mats-link" target="_blank">Ver Produto</a>
+                </div>
+                <div class="product-item">
+                    <h3>Caixa organizadora para consola central</h3>
+                    <p>Organiza e protege objetos na consola central</p>
+                    <a href="#" class="product-button" id="console-organizer-link" target="_blank">Ver Produto</a>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="reset-button" onclick="resetChecklist()">🔄 Reiniciar Checklist</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 Tesla Delivery Checklist | Criado para ajudar na entrega do seu Tesla</p>
+        <p>⚠️ Links de produtos podem conter links de afiliado</p>
+    </footer>
+
+    <script>
+        // Product links for different models
+        const productLinks = {
+            model3: {
+                'mud-flaps-link': 'https://amzn.to/40Un7RI',
+                'screen-protector-front-link': 'https://amzn.to/3IsJ7gp',
+                'screen-protector-rear-link': 'https://amzn.to/44v0Lsu',
+                'floor-mats-link': 'https://amzn.to/467apCN',
+                'console-organizer-link': 'https://amzn.to/4nR7u7E'
+            },
+            modely: {
+                'mud-flaps-link': 'https://amzn.to/4nQdfCC',
+                'screen-protector-front-link': 'https://amzn.to/3IsJ7gp',
+                'screen-protector-rear-link': 'https://amzn.to/44v0Lsu',
+                'floor-mats-link': 'https://amzn.to/4lZs2t1',
+                'console-organizer-link': 'https://amzn.to/3GroMYj'
+            },
+            models: {
+                'mud-flaps-link': 'https://amzn.to/4lAazaO',
+                'screen-protector-front-link': 'https://amzn.to/3IsJ7gp',
+                'screen-protector-rear-link': 'https://amzn.to/44v0Lsu',
+                'floor-mats-link': 'https://amzn.to/3ItaDKK',
+                'console-organizer-link': 'https://amzn.to/40TDRZm'
+            },
+            modelx: {
+                'mud-flaps-link': 'https://amzn.to/4eWfVuw',
+                'screen-protector-front-link': 'https://amzn.to/3IsJ7gp',
+                'screen-protector-rear-link': 'https://amzn.to/44v0Lsu',
+                'floor-mats-link': 'https://amzn.to/46Pxo5s',
+                'console-organizer-link': 'https://amzn.to/40TDRZm'
+            }
+        };
+
+        // Section mapping
+        const sections = {
+            'documentation': ['registration', 'insurance', 'keys', 'manual'],
+            'exterior': ['paint', 'panels', 'lights', 'tires', 'trunk'],
+            'interior': ['seats', 'seatbelts', 'mirrors', 'ac', 'touchscreen', 'audio', 'usb'],
+            'charging': ['charging-cable', 'charging-port']
+        };
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const arrow = document.getElementById('arrow-' + sectionId);
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.classList.remove('rotated');
+            } else {
+                content.classList.add('hidden');
+                arrow.classList.add('rotated');
+            }
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const progress = (checkedBoxes.length / checkboxes.length) * 100;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '% Completo';
+            
+            saveProgress();
+        }
+
+        function saveProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const progress = {};
+            
+            checkboxes.forEach(checkbox => {
+                progress[checkbox.id] = checkbox.checked;
+            });
+            
+            const selectedModel = document.getElementById('modelSelect').value;
+            
+            localStorage.setItem('teslaChecklistProgress', JSON.stringify(progress));
+            localStorage.setItem('teslaSelectedModel', selectedModel);
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('teslaChecklistProgress');
+            const savedModel = localStorage.getItem('teslaSelectedModel');
+            
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                
+                Object.keys(progress).forEach(checkboxId => {
+                    const checkbox = document.getElementById(checkboxId);
+                    if (checkbox) {
+                        checkbox.checked = progress[checkboxId];
+                    }
+                });
+            }
+            
+            if (savedModel) {
+                document.getElementById('modelSelect').value = savedModel;
+                updateProductLinks();
+            }
+            
+            updateProgress();
+        }
+
+        function updateProductLinks() {
+            const selectedModel = document.getElementById('modelSelect').value;
+            
+            if (selectedModel && productLinks[selectedModel]) {
+                Object.keys(productLinks[selectedModel]).forEach(linkId => {
+                    const link = document.getElementById(linkId);
+                    if (link) {
+                        link.href = productLinks[selectedModel][linkId];
+                    }
+                });
+            }
+        }
+
+        function resetChecklist() {
+            if (confirm('Tem a certeza que pretende reiniciar o checklist? Todo o progresso será perdido.')) {
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                localStorage.removeItem('teslaChecklistProgress');
+                updateProgress();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('modelSelect').addEventListener('change', function() {
+            updateProductLinks();
+            saveProgress();
+        });
+
+        // Load progress on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+        });
+    </script>
+</body>
+</html>
